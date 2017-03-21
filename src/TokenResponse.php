@@ -1,5 +1,5 @@
 <?php
-namespace WalmartSellerAPI;
+namespace JetAPI;
 
-class FeedResponse extends AbstractResponse {
+class TokenResponse extends AbstractResponse {
 }

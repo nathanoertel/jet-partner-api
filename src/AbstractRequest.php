@@ -6,8 +6,8 @@ abstract class AbstractRequest {
 	const ENV_PROD = 'prod';
 	const ENV_DEV = 'dev';
 	
-	const BASE_URL_PROD = 'https://merchant-api.jet.com/api/';
-	const BASE_URL_DEV = 'https://merchant-api.jet.com/api/';
+	const BASE_URL_PROD = 'https://merchant-api.jet.com/api';
+	const BASE_URL_DEV = 'https://merchant-api.jet.com/api';
 
 	const GET = 'GET';
 	const ADD = 'ADD';
@@ -46,8 +46,6 @@ abstract class AbstractRequest {
 		$this->config = array_merge_recursive($this->config, $config);
 		
 		$this->logger = $logger;
-
-		$this->init();
 	}
 
 	public function get($path = '', $parameters = array()) {
@@ -92,12 +90,11 @@ abstract class AbstractRequest {
 		} else if($method == self::UPDATE || $method == self::PUT) {
 			$options[CURLOPT_POST] = 1;
 			$options[CURLOPT_POSTFIELDS] = $this->getPostFields($data);
-			$httpHeaders[] = $this->getPostContentType();
 			if($method == self::PUT) {
 				$options[CURLOPT_CUSTOMREQUEST] = 'PUT';
 				$this->log('PUT '.$options[CURLOPT_URL]);
 			} else $this->log('UPDATE '.$options[CURLOPT_URL]);
-			$this->log($data);
+			$this->log(json_encode($data));
 		} else if($method == self::ADD) {
 			$options[CURLOPT_POST] = 1;
 			$options[CURLOPT_POSTFIELDS] = $data;
@@ -145,39 +142,7 @@ abstract class AbstractRequest {
 	}
 	
 	protected function getPostFields($data) {
-		return $data;
-	}
-	
-	protected function getPostContentType() {
-		return 'Content-Type: application/json';
-	}
-
-	private function getSignature($consumerId, $privateKey, $requestUrl, $requestMethod, $timestamp) {
-		$message = $consumerId."\n".$requestUrl."\n".strtoupper($requestMethod)."\n".$timestamp."\n";
-
-		$rsa = new RSA();
-		$decodedPrivateKey = base64_decode($privateKey);
-		$rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS8);
-		$rsa->setPublicKeyFormat(RSA::PRIVATE_FORMAT_PKCS8);
-
-		/**
-		 * Load private key
-		 */
-		if($rsa->loadKey($decodedPrivateKey,RSA::PRIVATE_FORMAT_PKCS8)){
-			/**
-			 * Make sure we use SHA256 for signing
-			 */
-			$rsa->setHash('sha256');
-			$rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
-
-			$signed = $rsa->sign($message);
-			/**
-			 * Return Base64 Encode generated signature
-			 */
-			return base64_encode($signed);
-		} else {
-			throw new \Exception("Unable to load private key");
-		}
+		return json_encode($data);
 	}
 
 	/**
@@ -203,22 +168,11 @@ abstract class AbstractRequest {
 
 	public function getHeaders($url, $method, $headers = array()) {
 		$headers[] = 'Content-Type: application/json';
-
-		return $headers;
-	}
-
-	public function setConfig($key, $value) {
-		$keys = explode('/', $key);
-
-		$temp = &$this->config;
-
-		foreach($keys as $k) {
-			$temp = &$temp[$k];
+		if(isset($this->config['token'])) {
+			$headers[] = 'Authorization: bearer '.$this->config['token'];
 		}
 
-		$temp = $value;
-
-		unset($temp);
+		return $headers;
 	}
 
 	private function log($message) {
