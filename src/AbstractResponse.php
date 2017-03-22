@@ -63,19 +63,15 @@ abstract class AbstractResponse {
 		
 		foreach($headerArray as $index => $header) {
 			if(strpos($header, 'HTTP/1.1') === 0) {
-				$this->headers['http_code'] = $header;
+				$this->headers['http_code'] = substr($header, 9, 3);
+				$this->headers['http_message'] = substr($header, 13);
 			} else if(!empty($header)) {
 				list($key, $value) = explode(': ', $header);
 				$this->headers[$key] = $value;
 			}
 		}
 		
-		if($this->headers['http_code'] == 'HTTP/1.1 503 Service Unavailable') {
-			$this->success = false;
-			$this->errorCode = 503;
-			$this->error = 'Service Unavailable';
-			$this->errorMessage = 'Service Unavailable';
-		} else {
+		if($this->headers['http_code'] == '200') {
 			$this->data = json_decode($response, true);
 			switch($method) {
 				case AbstractRequest::GET:
@@ -89,6 +85,11 @@ abstract class AbstractResponse {
 				case AbstractRequest::DELETE:
 					break;
 			}
+		} else {
+			$this->success = false;
+			$this->errorCode = $this->headers['http_code'];
+			$this->error = $this->headers['http_message'];
+			$this->errorMessage = $this->headers['http_message'];
 		}
 	}
 }

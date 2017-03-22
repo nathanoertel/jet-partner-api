@@ -1,37 +1,28 @@
 <?php
-namespace WalmartSellerAPI;
+namespace JetAPI;
 
-class InventoryRequest extends AbstractRequest {
+class TaxonomyRequest extends AbstractRequest {
 
-	public function find($sku) {
-		return $this->get('', array(
-			'sku' => $sku
+	public function getTaxonomies($parent, $offset, $limit) {
+		return $this->get('/links/'.$parent, array(
+			'offset' => $offset,
+			'limit' => $limit
 		));
 	}
-
-	public function update($sku, $inventory, $fulfillment) {
-		$document = Library::getDocument('inventory');
-
-		$inv = $document->getType();
-		$inv->sku = $sku;
-		$quantity = Library::getType('inventory/Quantity');
-		$quantity->unit = 'Each';
-		$quantity->amount = $inventory;
-		$inv->quantity = $quantity;
-		$inv->fulfillmentLagTime = $fulfillment;
-
-		return $this->put('?sku='.$sku, $document->getXML($inv)->asXML());
+	
+	public function getTaxonomy($node) {
+		return $this->get('/nodes/'.$node);
+	}
+	
+	public function getAttributes($node) {
+		return $this->get('/nodes/'.$node.'/attributes');
 	}
 
 	public function getEndpoint() {
-		return '/v2/inventory';
+		return '/taxonomy';
 	}
 
 	protected function getResponse() {
-		return 'WalmartSellerAPI\InventoryResponse';
-	}
-
-	protected function init() {
-		Library::load('inventory/Inventory');
+		return 'JetAPI\TaxonomyResponse';
 	}
 }

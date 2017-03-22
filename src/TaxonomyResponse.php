@@ -1,5 +1,5 @@
 <?php
-namespace WalmartSellerAPI;
+namespace JetAPI;
 
-class InventoryResponse extends AbstractResponse {
+class TaxonomyResponse extends AbstractResponse {
 }

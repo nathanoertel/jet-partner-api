@@ -4,7 +4,7 @@ namespace JetAPI;
 class TokenRequest extends AbstractRequest {
 
 	public function getToken() {
-		$this->post('', array(
+		return $this->post('', array(
 			'user' => $this->config['user'],
 			'pass' => $this->config['password']
 		));
