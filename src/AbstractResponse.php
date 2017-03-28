@@ -63,7 +63,7 @@ abstract class AbstractResponse {
 		
 		foreach($headerArray as $index => $header) {
 			if(strpos($header, 'HTTP/1.1') === 0) {
-				$this->headers['http_code'] = substr($header, 9, 3);
+				$this->headers['http_code'] = (integer)substr($header, 9, 3);
 				$this->headers['http_message'] = substr($header, 13);
 			} else if(!empty($header)) {
 				list($key, $value) = explode(': ', $header);
@@ -71,7 +71,7 @@ abstract class AbstractResponse {
 			}
 		}
 		
-		if($this->headers['http_code'] == '200') {
+		if($this->headers['http_code'] >= 200 && $this->headers['http_code'] < 300) {
 			$this->data = json_decode($response, true);
 			switch($method) {
 				case AbstractRequest::GET:
@@ -90,6 +90,7 @@ abstract class AbstractResponse {
 			$this->errorCode = $this->headers['http_code'];
 			$this->error = $this->headers['http_message'];
 			$this->errorMessage = $this->headers['http_message'];
+			$this->data = json_decode($response, true);
 		}
 	}
 }

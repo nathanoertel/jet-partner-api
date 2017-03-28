@@ -161,13 +161,18 @@ abstract class AbstractRequest {
 				return null;
 		}
 	}
+	
+	protected function getPostContentType() {
+		return 'Content-Type: application/json';
+	}
 
 	public abstract function getEndpoint();
 
 	protected abstract function getResponse();
 
 	public function getHeaders($url, $method, $headers = array()) {
-		$headers[] = 'Content-Type: application/json';
+		$headers[] = $this->getPostContentType();
+		$headers[] = 'Accept: application/json';
 		if(isset($this->config['token'])) {
 			$headers[] = 'Authorization: bearer '.$this->config['token'];
 		}
