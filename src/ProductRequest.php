@@ -18,7 +18,7 @@ class ProductRequest extends AbstractRequest {
 	}
 	
 	public function updateInventory($sku, $fulfillmentNodes) {
-		return $this->put('/'.$sku.'/inventory', array(
+		return $this->patch('/'.$sku.'/inventory', array(
 			'fulfillment_nodes' => $fulfillmentNodes
 		));
 	}

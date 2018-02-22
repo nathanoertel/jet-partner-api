@@ -13,6 +13,7 @@ abstract class AbstractRequest {
 	const ADD = 'ADD';
 	const UPDATE = 'POST';
 	const PUT = 'PUT';
+	const PATCH = 'PATCH';
 	const DELETE = 'DELETE';
 
 	public $env;
@@ -60,6 +61,10 @@ abstract class AbstractRequest {
 		return $this->request(self::PUT, $path, $parameters);
 	}
 
+	public function patch($path, $parameters = array()) {
+		return $this->request(self::PATCH, $path, $parameters);
+	}
+
 	public function delete($path, $parameters = array()) {
 		return $this->request(self::DELETE, $path, $parameters);
 	}
@@ -87,12 +92,15 @@ abstract class AbstractRequest {
 		if($method == self::GET) {
 			if(!empty($data)) $options[CURLOPT_URL] .= '?'.http_build_query($data);
 			$this->log('GET '.$options[CURLOPT_URL]);
-		} else if($method == self::UPDATE || $method == self::PUT) {
+		} else if($method == self::UPDATE || $method == self::PUT || $method == self::PATCH) {
 			$options[CURLOPT_POST] = 1;
 			$options[CURLOPT_POSTFIELDS] = $this->getPostFields($data);
 			if($method == self::PUT) {
 				$options[CURLOPT_CUSTOMREQUEST] = 'PUT';
 				$this->log('PUT '.$options[CURLOPT_URL]);
+			} else if($method == self::PATCH) {
+				$options[CURLOPT_CUSTOMREQUEST] = 'PATCH';
+				$this->log('PATCH '.$options[CURLOPT_URL]);
 			} else $this->log('UPDATE '.$options[CURLOPT_URL]);
 			$this->log(json_encode($data));
 		} else if($method == self::ADD) {
