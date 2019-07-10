@@ -3,8 +3,8 @@ namespace JetAPI;
 
 class OrderRequest extends AbstractRequest {
 
-	public function getOrders($status) {
-		return $this->get('/'.$status);
+	public function getOrders($status, $parameters = array()) {
+		return $this->get('/'.$status, $parameters);
 	}
 	
 	public function getOrder($orderId) {
