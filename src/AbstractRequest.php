@@ -138,9 +138,10 @@ abstract class AbstractRequest {
 			unset($headerSize, $headers, $body);
 
 			if(!$result->isSuccess() && $result->getError() == 'RateLimitedException') {
-				throw new Exception($result->getErrorMessage(), $result->getErrorCode());
+				throw new \Exception($result->getErrorMessage(), $result->getErrorCode());
 			}
 		} else {
+			$result = new ErrorResponse(curl_errno($curl), curl_error($curl), curl_error($curl));
 			$this->log(curl_error($curl));
 		}
 		
