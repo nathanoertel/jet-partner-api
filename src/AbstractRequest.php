@@ -119,26 +119,32 @@ abstract class AbstractRequest {
 		curl_setopt_array($curl, $options);
 
 		$response = curl_exec($curl);
-		$information = curl_getinfo($curl);
-		
-		$this->log($information['request_header']);
 
-		if($response !== false) {
-			$this->log($response);
+		if($response) {
+			$information = curl_getinfo($curl);
 			
-			$headerSize = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+			$this->log($information['request_header']);
 
-			$headers = substr($response, 0, $headerSize);
-			$body = substr($response, $headerSize);
+			if($response !== false) {
+				$this->log($response);
+				
+				$headerSize = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
 
-			$responseClass = $this->getResponse();
+				$headers = substr($response, 0, $headerSize);
+				$body = substr($response, $headerSize);
 
-			$result = new $responseClass($headers, $body, $method);
+				$responseClass = $this->getResponse();
 
-			unset($headerSize, $headers, $body);
+				$result = new $responseClass($headers, $body, $method);
 
-			if(!$result->isSuccess() && $result->getError() == 'RateLimitedException') {
-				throw new \Exception($result->getErrorMessage(), $result->getErrorCode());
+				unset($headerSize, $headers, $body);
+
+				if(!$result->isSuccess() && $result->getError() == 'RateLimitedException') {
+					throw new \Exception($result->getErrorMessage(), $result->getErrorCode());
+				}
+			} else {
+				$result = new ErrorResponse(curl_errno($curl), curl_error($curl), curl_error($curl));
+				$this->log(curl_error($curl));
 			}
 		} else {
 			$result = new ErrorResponse(curl_errno($curl), curl_error($curl), curl_error($curl));

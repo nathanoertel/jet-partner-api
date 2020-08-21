@@ -5,23 +5,23 @@ abstract class AbstractResponse {
 
 	protected $data = null;
 
-	private $success = true;
+	protected $success = true;
 
-	private $error = null;
+	protected $error = null;
 
-	private $errorCode = null;
+	protected $errorCode = null;
 
-	private $errorMessage = null;
+	protected $errorMessage = null;
 	
-	private $count = 0;
+	protected $count = 0;
 	
-	private $offset = 0;
+	protected $offset = 0;
 	
-	private $limit = 100;
+	protected $limit = 100;
 	
-	private $response = null;
+	protected $response = null;
 	
-	private $headers = array();
+	protected $headers = array();
 
 	public function isSuccess() {
 		return $this->success;
